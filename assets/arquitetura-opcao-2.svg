@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="760" viewBox="0 0 1280 760" role="img" aria-labelledby="title desc">
+  <title id="title">Arquitetura orientada a domínios</title>
+  <desc id="desc">Diagrama de uma arquitetura futura com serviços de catálogo, preços, estoque e checkout integrados por eventos.</desc>
+  <defs>
+    <style>
+      .bg { fill: #f8faf7; }
+      .band { fill: #ffffff; stroke: #d8dde8; stroke-width: 1.5; }
+      .box { fill: #ffffff; stroke: #56657a; stroke-width: 2; rx: 10; }
+      .svc { fill: #eef6ff; stroke: #2f6f9f; }
+      .db { fill: #fff7e8; stroke: #996515; }
+      .event { fill: #edf8f0; stroke: #2d7a46; }
+      .erp { fill: #f7eef8; stroke: #8a4a94; }
+      .obs { fill: #f1f2f5; stroke: #6a7280; }
+      .title { font: 700 28px Arial, sans-serif; fill: #1c2430; }
+      .label { font: 700 17px Arial, sans-serif; fill: #1c2430; }
+      .small { font: 14px Arial, sans-serif; fill: #39465a; }
+      .arrow { fill: none; stroke: #344054; stroke-width: 2.2; marker-end: url(#arrow); }
+      .dash { fill: none; stroke: #6a7280; stroke-width: 2; stroke-dasharray: 7 7; marker-end: url(#arrowGray); }
+    </style>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#344054"/>
+    </marker>
+    <marker id="arrowGray" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#6a7280"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" width="1280" height="760"/>
+  <text class="title" x="48" y="54">Opção 2: plataforma de comércio orientada a domínios</text>
+  <text class="small" x="48" y="82">Mais robusta no longo prazo, mas com maior custo operacional e maior complexidade de entrega.</text>
+
+  <rect class="band" x="40" y="120" width="250" height="540" rx="14"/>
+  <rect class="band" x="320" y="120" width="450" height="540" rx="14"/>
+  <rect class="band" x="800" y="120" width="210" height="540" rx="14"/>
+  <rect class="band" x="1040" y="120" width="200" height="540" rx="14"/>
+
+  <text class="label" x="66" y="154">Entrada</text>
+  <text class="label" x="346" y="154">Domínios da loja</text>
+  <text class="label" x="826" y="154">Eventos</text>
+  <text class="label" x="1066" y="154">ERP</text>
+
+  <rect class="box svc" x="78" y="220" width="174" height="76"/>
+  <text class="label" x="123" y="253">Cliente</text>
+  <text class="small" x="109" y="275">web / app</text>
+
+  <rect class="box svc" x="78" y="390" width="174" height="82"/>
+  <text class="label" x="106" y="423">API Gateway</text>
+  <text class="small" x="118" y="445">BFF / contratos</text>
+
+  <rect class="box svc" x="354" y="190" width="172" height="64"/>
+  <text class="label" x="388" y="228">Catálogo</text>
+  <rect class="box db" x="568" y="190" width="154" height="64"/>
+  <text class="label" x="602" y="228">DB Catálogo</text>
+
+  <rect class="box svc" x="354" y="300" width="172" height="64"/>
+  <text class="label" x="398" y="338">Preços</text>
+  <rect class="box db" x="568" y="300" width="154" height="64"/>
+  <text class="label" x="606" y="338">DB Preços</text>
+
+  <rect class="box svc" x="354" y="410" width="172" height="64"/>
+  <text class="label" x="398" y="448">Estoque</text>
+  <rect class="box db" x="568" y="410" width="154" height="64"/>
+  <text class="label" x="602" y="448">DB Estoque</text>
+
+  <rect class="box svc" x="354" y="520" width="172" height="64"/>
+  <text class="label" x="394" y="558">Checkout</text>
+  <rect class="box db" x="568" y="520" width="154" height="64"/>
+  <text class="label" x="604" y="558">DB Pedidos</text>
+
+  <rect class="box event" x="828" y="232" width="154" height="84"/>
+  <text class="label" x="858" y="266">Event Broker</text>
+  <text class="small" x="853" y="288">RabbitMQ / Kafka</text>
+
+  <rect class="box event" x="828" y="430" width="154" height="84"/>
+  <text class="label" x="849" y="464">Worker ERP</text>
+  <text class="small" x="859" y="486">faturamento</text>
+
+  <rect class="box obs" x="828" y="568" width="154" height="58"/>
+  <text class="label" x="846" y="603">Observabilidade</text>
+
+  <rect class="box erp" x="1072" y="252" width="136" height="86"/>
+  <text class="label" x="1094" y="286">ERP Central</text>
+  <text class="small" x="1096" y="308">legado</text>
+
+  <rect class="box erp" x="1072" y="450" width="136" height="76"/>
+  <text class="label" x="1096" y="482">Conector</text>
+  <text class="small" x="1100" y="504">CDC / polling</text>
+
+  <path class="arrow" d="M165 296 V390"/>
+  <path class="arrow" d="M252 431 H354"/>
+  <path class="arrow" d="M252 431 C300 431 300 222 354 222"/>
+  <path class="arrow" d="M252 431 C300 431 300 332 354 332"/>
+  <path class="arrow" d="M252 431 C300 431 300 552 354 552"/>
+
+  <path class="arrow" d="M526 222 H568"/>
+  <path class="arrow" d="M526 332 H568"/>
+  <path class="arrow" d="M526 442 H568"/>
+  <path class="arrow" d="M526 552 H568"/>
+
+  <path class="dash" d="M526 222 C650 222 700 274 828 274"/>
+  <path class="dash" d="M526 332 C650 332 700 274 828 274"/>
+  <path class="dash" d="M526 442 C650 442 700 274 828 274"/>
+  <path class="dash" d="M526 552 C650 552 700 274 828 274"/>
+
+  <path class="arrow" d="M905 316 V430"/>
+  <path class="arrow" d="M982 472 H1072 V295"/>
+  <path class="dash" d="M1140 338 V450"/>
+  <path class="dash" d="M1072 488 H982 V274"/>
+  <path class="dash" d="M982 472 V597"/>
+</svg>

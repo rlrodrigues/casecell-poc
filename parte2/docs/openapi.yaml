@@ -1,0 +1,147 @@
+openapi: 3.0.3
+info:
+  title: CaseCellShop API
+  version: "1.0.0"
+  description: API para catálogo com cache, checkout assíncrono e consulta de status do pedido.
+paths:
+  /products:
+    get:
+      summary: Lista produtos da vitrine
+      operationId: getProducts
+      responses:
+        "200":
+          description: Lista de produtos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+  /checkout:
+    post:
+      summary: Inicia checkout assíncrono
+      operationId: startCheckout
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CheckoutRequest"
+      responses:
+        "202":
+          description: Pedido aceito para processamento assíncrono
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckoutAccepted"
+        "400":
+          description: Requisição inválida
+        "409":
+          description: Chave de idempotência reutilizada com payload diferente
+        "422":
+          description: Estoque insuficiente
+  /orders/{orderId}/status:
+    get:
+      summary: Consulta status do pedido
+      operationId: getOrderStatus
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Status do pedido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderStatus"
+        "404":
+          description: Pedido não encontrado
+components:
+  schemas:
+    Product:
+      type: object
+      required: [sku, name, description, price, available, updatedAt]
+      properties:
+        sku:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+          format: decimal
+        available:
+          type: integer
+        updatedAt:
+          type: string
+          format: date-time
+    CheckoutRequest:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/CheckoutItem"
+    CheckoutItem:
+      type: object
+      required: [sku, quantity]
+      properties:
+        sku:
+          type: string
+        quantity:
+          type: integer
+          minimum: 1
+    CheckoutAccepted:
+      type: object
+      required: [orderId, status]
+      properties:
+        orderId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          example: PendingBilling
+    OrderStatus:
+      type: object
+      required: [orderId, status, createdAt, updatedAt, items]
+      properties:
+        orderId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [PendingBilling, Billing, Billed, BillingFailed]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderLine"
+    OrderLine:
+      type: object
+      required: [sku, quantity, unitPrice]
+      properties:
+        sku:
+          type: string
+        quantity:
+          type: integer
+        unitPrice:
+          type: number
+          format: decimal

@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="520" viewBox="0 0 1280 520" role="img" aria-labelledby="title desc">
+  <title id="title">Fluxo da vitrine</title>
+  <desc id="desc">Fluxo visual de leitura da vitrine usando Redis, banco da loja e sincronização com ERP.</desc>
+  <defs>
+    <style>
+      .bg { fill: #fbfcff; }
+      .box { fill: #ffffff; stroke: #526070; stroke-width: 2; rx: 10; }
+      .cache { fill: #eef6ff; stroke: #2f6f9f; }
+      .db { fill: #fff7e8; stroke: #996515; }
+      .erp { fill: #f7eef8; stroke: #8a4a94; }
+      .ok { fill: #edf8f0; stroke: #2d7a46; }
+      .title { font: 700 26px Arial, sans-serif; fill: #1c2430; }
+      .label { font: 700 17px Arial, sans-serif; fill: #1c2430; }
+      .small { font: 14px Arial, sans-serif; fill: #39465a; }
+      .arrow { fill: none; stroke: #344054; stroke-width: 2.3; marker-end: url(#arrow); }
+      .dash { fill: none; stroke: #6a7280; stroke-width: 2; stroke-dasharray: 7 7; marker-end: url(#arrowGray); }
+    </style>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#344054"/>
+    </marker>
+    <marker id="arrowGray" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#6a7280"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" width="1280" height="520"/>
+  <text class="title" x="48" y="54">Fluxo da vitrine</text>
+  <text class="small" x="48" y="82">A vitrine lê do cache e do banco da loja. O ERP sincroniza dados fora do caminho quente.</text>
+
+  <rect class="box" x="70" y="190" width="150" height="72"/>
+  <text class="label" x="111" y="222">Cliente</text>
+  <text class="small" x="98" y="244">GET /products</text>
+
+  <rect class="box cache" x="300" y="190" width="180" height="72"/>
+  <text class="label" x="346" y="222">API Loja</text>
+  <text class="small" x="326" y="244">cache-aside</text>
+
+  <rect class="box cache" x="570" y="112" width="180" height="72"/>
+  <text class="label" x="628" y="144">Redis</text>
+  <text class="small" x="604" y="166">hit / miss / stale</text>
+
+  <rect class="box db" x="570" y="306" width="180" height="76"/>
+  <text class="label" x="603" y="338">MySQL Loja</text>
+  <text class="small" x="604" y="360">read model</text>
+
+  <rect class="box erp" x="850" y="306" width="170" height="76"/>
+  <text class="label" x="914" y="338">ERP</text>
+  <text class="small" x="881" y="360">fonte de conciliação</text>
+
+  <rect class="box erp" x="850" y="112" width="170" height="72"/>
+  <text class="label" x="879" y="144">Sincronizador</text>
+  <text class="small" x="895" y="166">polling / CDC</text>
+
+  <rect class="box ok" x="1080" y="190" width="150" height="72"/>
+  <text class="label" x="1120" y="222">Resposta</text>
+  <text class="small" x="1111" y="244">com cacheAge</text>
+
+  <path class="arrow" d="M220 226 H300"/>
+  <path class="arrow" d="M480 226 C520 226 520 148 570 148"/>
+  <path class="arrow" d="M660 184 C660 230 520 226 480 226"/>
+  <path class="arrow" d="M480 226 C520 226 520 344 570 344"/>
+  <path class="arrow" d="M750 344 C790 344 790 226 1080 226"/>
+  <path class="arrow" d="M480 226 H1080"/>
+  <path class="dash" d="M935 306 V184"/>
+  <path class="dash" d="M850 148 H750"/>
+  <path class="dash" d="M850 148 C790 148 800 344 750 344"/>
+</svg>

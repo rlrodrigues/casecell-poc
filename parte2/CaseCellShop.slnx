@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/CaseCellShop.Api/CaseCellShop.Api.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/CaseCellShop.Tests/CaseCellShop.Tests.csproj" />
+  </Folder>
+</Solution>

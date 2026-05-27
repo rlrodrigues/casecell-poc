@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="560" viewBox="0 0 1280 560" role="img" aria-labelledby="title desc">
+  <title id="title">Fluxo do checkout assíncrono</title>
+  <desc id="desc">Fluxo visual do checkout com idempotência, reserva, outbox, RabbitMQ, worker, ERP, retry e DLQ.</desc>
+  <defs>
+    <style>
+      .bg { fill: #fbfcff; }
+      .box { fill: #ffffff; stroke: #526070; stroke-width: 2; rx: 10; }
+      .api { fill: #eef6ff; stroke: #2f6f9f; }
+      .db { fill: #fff7e8; stroke: #996515; }
+      .queue { fill: #edf8f0; stroke: #2d7a46; }
+      .erp { fill: #f7eef8; stroke: #8a4a94; }
+      .fail { fill: #fff0f0; stroke: #b42318; }
+      .title { font: 700 26px Arial, sans-serif; fill: #1c2430; }
+      .label { font: 700 17px Arial, sans-serif; fill: #1c2430; }
+      .small { font: 14px Arial, sans-serif; fill: #39465a; }
+      .arrow { fill: none; stroke: #344054; stroke-width: 2.3; marker-end: url(#arrow); }
+      .dash { fill: none; stroke: #6a7280; stroke-width: 2; stroke-dasharray: 7 7; marker-end: url(#arrowGray); }
+    </style>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#344054"/>
+    </marker>
+    <marker id="arrowGray" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#6a7280"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" width="1280" height="560"/>
+  <text class="title" x="48" y="54">Fluxo do checkout assíncrono</text>
+  <text class="small" x="48" y="82">O pedido é aceito com reserva local. O faturamento no ERP acontece em segundo plano.</text>
+
+  <rect class="box" x="54" y="214" width="140" height="72"/>
+  <text class="label" x="92" y="246">Cliente</text>
+  <text class="small" x="76" y="268">POST /checkout</text>
+
+  <rect class="box api" x="250" y="214" width="170" height="72"/>
+  <text class="label" x="292" y="246">API Loja</text>
+  <text class="small" x="276" y="268">Idempotency-Key</text>
+
+  <rect class="box db" x="500" y="136" width="190" height="86"/>
+  <text class="label" x="544" y="170">Transação DB</text>
+  <text class="small" x="525" y="192">pedido + reserva + outbox</text>
+
+  <rect class="box api" x="500" y="318" width="190" height="72"/>
+  <text class="label" x="532" y="350">202 Accepted</text>
+  <text class="small" x="540" y="372">orderId + status</text>
+
+  <rect class="box queue" x="770" y="136" width="160" height="72"/>
+  <text class="label" x="803" y="168">Publisher</text>
+  <text class="small" x="804" y="190">outbox pending</text>
+
+  <rect class="box queue" x="770" y="298" width="160" height="72"/>
+  <text class="label" x="808" y="330">RabbitMQ</text>
+  <text class="small" x="807" y="352">retry + DLQ</text>
+
+  <rect class="box queue" x="1000" y="214" width="160" height="72"/>
+  <text class="label" x="1032" y="246">Worker</text>
+  <text class="small" x="1019" y="268">faturamento ERP</text>
+
+  <rect class="box erp" x="1000" y="388" width="160" height="72"/>
+  <text class="label" x="1050" y="420">ERP</text>
+  <text class="small" x="1028" y="442">nota / faturamento</text>
+
+  <rect class="box fail" x="770" y="430" width="160" height="72"/>
+  <text class="label" x="825" y="462">DLQ</text>
+  <text class="small" x="807" y="484">falha permanente</text>
+
+  <path class="arrow" d="M194 250 H250"/>
+  <path class="arrow" d="M420 250 C460 250 460 179 500 179"/>
+  <path class="arrow" d="M595 222 V318"/>
+  <path class="arrow" d="M500 354 C360 354 340 286 194 286"/>
+  <path class="arrow" d="M690 179 H770"/>
+  <path class="arrow" d="M850 208 V298"/>
+  <path class="arrow" d="M930 334 C960 334 960 250 1000 250"/>
+  <path class="arrow" d="M1080 286 V388"/>
+  <path class="dash" d="M1000 250 C930 250 930 334 930 334"/>
+  <path class="dash" d="M850 370 V430"/>
+  <path class="dash" d="M1000 424 C900 424 900 370 930 334"/>
+</svg>

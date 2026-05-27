@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="260" viewBox="0 0 900 260" role="img" aria-labelledby="title desc">
+  <title id="title">Ciclo de vida da reserva de estoque</title>
+  <desc id="desc">Estados de uma reserva de estoque: disponível, reservado, confirmado, liberado e expirado.</desc>
+  <defs>
+    <style>
+      .bg { fill: #fbfcff; }
+      .state { fill: #ffffff; stroke: #526070; stroke-width: 2; rx: 12; }
+      .main { fill: #eef6ff; stroke: #2f6f9f; }
+      .done { fill: #edf8f0; stroke: #2d7a46; }
+      .warn { fill: #fff7e8; stroke: #996515; }
+      .label { font: 700 17px Arial, sans-serif; fill: #1c2430; }
+      .small { font: 14px Arial, sans-serif; fill: #39465a; }
+      .arrow { fill: none; stroke: #344054; stroke-width: 2.2; marker-end: url(#arrow); }
+    </style>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#344054"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="900" height="260"/>
+
+  <rect class="state main" x="56" y="92" width="142" height="70"/>
+  <text class="label" x="86" y="124">Disponível</text>
+  <text class="small" x="88" y="146">available</text>
+
+  <rect class="state main" x="284" y="92" width="142" height="70"/>
+  <text class="label" x="323" y="124">Reservado</text>
+  <text class="small" x="326" y="146">reserved</text>
+
+  <rect class="state done" x="562" y="42" width="142" height="70"/>
+  <text class="label" x="599" y="74">Confirmado</text>
+  <text class="small" x="610" y="96">confirmed</text>
+
+  <rect class="state warn" x="562" y="148" width="142" height="70"/>
+  <text class="label" x="603" y="180">Liberado</text>
+  <text class="small" x="614" y="202">released</text>
+
+  <rect class="state warn" x="734" y="148" width="112" height="70"/>
+  <text class="label" x="759" y="180">Expirado</text>
+  <text class="small" x="766" y="202">expired</text>
+
+  <path class="arrow" d="M198 127 H284"/>
+  <path class="arrow" d="M426 116 C480 116 500 77 562 77"/>
+  <path class="arrow" d="M426 138 C480 138 500 183 562 183"/>
+  <path class="arrow" d="M704 183 H734"/>
+  <path class="arrow" d="M562 183 C430 232 210 218 145 162"/>
+</svg>
