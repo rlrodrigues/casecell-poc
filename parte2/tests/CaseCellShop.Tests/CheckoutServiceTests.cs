@@ -1,7 +1,7 @@
-using CaseCellShop.Api.Contracts;
-using CaseCellShop.Api.Data;
-using CaseCellShop.Api.Domain;
-using CaseCellShop.Api.Services;
+using CaseCellShop.Application.Services;
+using CaseCellShop.Domain.Contracts;
+using CaseCellShop.Domain.Entities;
+using CaseCellShop.Infrastructure.Data;
 using CaseCellShop.Tests.Support;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;

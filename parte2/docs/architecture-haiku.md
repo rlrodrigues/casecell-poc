@@ -2,7 +2,7 @@
 
 ## 1. Descritivo do sistema
 
-A solução é uma API backend para a CaseCellShop que expõe catálogo de produtos com cache Redis, inicia checkout assíncrono com reserva transacional de estoque e permite consultar o status do pedido. O ERP é simulado como uma dependência lenta de faturamento, processada em segundo plano para preservar a experiência do cliente e manter rastreabilidade.
+A solução é uma API backend para a CaseCellShop, organizada em Clean Architecture, que expõe catálogo de produtos com cache Redis, inicia checkout assíncrono com reserva transacional de estoque e permite consultar o status do pedido. O ERP é simulado como uma dependência lenta de faturamento, processada em segundo plano para preservar a experiência do cliente e manter rastreabilidade.
 
 ## 2. Objetivos de negócio
 
@@ -11,6 +11,7 @@ A solução é uma API backend para a CaseCellShop que expõe catálogo de produ
 - Tolerar timeout e retry no faturamento do ERP.
 - Permitir acompanhamento do pedido por status.
 - Demonstrar decisões arquiteturais, observabilidade e uso responsável de IA.
+- Permitir teste de carga reproduzível para discutir performance com dados.
 
 ## 3. Restrições identificadas
 
@@ -19,6 +20,7 @@ A solução é uma API backend para a CaseCellShop que expõe catálogo de produ
 - Não há necessidade de autenticação, pagamento real, frontend ou deploy real.
 - Redis deve ser usado para cache.
 - EF Core deve ser usado com transações e sem más práticas comuns, como lazy loading implícito, consultas rastreadas desnecessárias ou concorrência no mesmo `DbContext`.
+- As camadas devem ficar separadas para evitar acoplamento entre endpoints, domínio e infraestrutura.
 
 ## 4. Atributos de qualidade priorizados
 
@@ -29,6 +31,7 @@ Consistência vem primeiro porque overselling é o risco de negócio mais sensí
 ## 5. Decisões de design
 
 - C# / ASP.NET Core Minimal APIs para reduzir boilerplate e manter a entrega objetiva.
+- Clean Architecture com projetos separados para Domain, Application, Infrastructure e API.
 - EF Core + SQLite para transações reais no desafio local.
 - Redis via `IDistributedCache` para cache de catálogo.
 - Reserva de estoque com `UPDATE` condicional usando `ExecuteUpdateAsync`.
@@ -36,4 +39,25 @@ Consistência vem primeiro porque overselling é o risco de negócio mais sensí
 - MassTransit EF Outbox para gravar evento de pedido criado junto com a transação.
 - Worker MassTransit para simular faturamento assíncrono no ERP.
 - OpenAPI/Swagger para contrato.
-- Logs estruturados e OpenTelemetry Console Exporter como stub local de traces.
+- Logs estruturados, OpenTelemetry, Collector, Prometheus e Grafana.
+- k6 para teste de carga e relatório HTML com gráfico.
+
+## 6. Estrutura em camadas
+
+```text
+CaseCellShop.Api
+  chama Application e configura Infrastructure
+
+CaseCellShop.Application
+  orquestra catálogo, checkout e faturamento
+
+CaseCellShop.Domain
+  concentra entidades, contratos, eventos e interfaces
+
+CaseCellShop.Infrastructure
+  implementa EF Core, Redis, MassTransit, ERP fake e relógio
+```
+
+## 7. Volume de dados
+
+A base local é populada com 5.000 produtos `CASE-00001` até `CASE-05000`, além dos registros demonstrativos iniciais. Esse volume deixa a vitrine mais próxima de um cenário realista e permite que o k6 distribua checkouts por muitos SKUs, reduzindo viés por colisão artificial de estoque.

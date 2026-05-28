@@ -1,12 +1,14 @@
-using CaseCellShop.Api.Contracts;
-using CaseCellShop.Api.Data;
-using CaseCellShop.Api.Messaging;
+using CaseCellShop.Application;
+using CaseCellShop.Application.Services;
+using CaseCellShop.Domain.Abstractions;
+using CaseCellShop.Domain.Contracts;
+using CaseCellShop.Infrastructure;
+using CaseCellShop.Infrastructure.Data;
 using CaseCellShop.Api.Observability;
-using CaseCellShop.Api.Services;
-using MassTransit;
 using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
+using OpenTelemetry.Logs;
 using OpenTelemetry.Resources;
+using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,57 +18,47 @@ builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.WriteIndented = builder.Environment.IsDevelopment();
 });
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-{
-    var connectionString = builder.Configuration.GetConnectionString("ShopDb") ?? "Data Source=data/casecellshop.db";
-    options.UseSqlite(connectionString);
-});
-
-builder.Services.AddStackExchangeRedisCache(options =>
-{
-    options.Configuration = builder.Configuration.GetConnectionString("Redis") ?? "localhost:6379";
-    options.InstanceName = "casecellshop:";
-});
-
-builder.Services.AddScoped<ProductCatalogService>();
-builder.Services.AddScoped<CheckoutService>();
-builder.Services.AddScoped<IEventPublisher, MassTransitEventPublisher>();
-builder.Services.AddScoped<IErpBillingClient, FakeErpBillingClient>();
-
-builder.Services.AddMassTransit(configurator =>
-{
-    configurator.AddConsumer<OrderCreatedConsumer>();
-
-    configurator.AddEntityFrameworkOutbox<AppDbContext>(options =>
-    {
-        options.QueryDelay = TimeSpan.FromSeconds(1);
-        options.UseSqlite();
-        options.UseBusOutbox();
-    });
-
-    configurator.UsingInMemory((context, cfg) =>
-    {
-        cfg.UseMessageRetry(retry => retry.Exponential(
-            retryLimit: 3,
-            minInterval: TimeSpan.FromMilliseconds(200),
-            maxInterval: TimeSpan.FromSeconds(3),
-            intervalDelta: TimeSpan.FromMilliseconds(300)));
-
-        cfg.ConfigureEndpoints(context);
-    });
-});
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddSingleton<IApplicationMetrics, ApplicationMetrics>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHealthChecks();
 
+var serviceName = builder.Configuration["Observability:ServiceName"] ?? "CaseCellShop.Api";
+var otlpEndpoint = builder.Configuration["Observability:OtlpEndpoint"];
+
+builder.Logging.AddOpenTelemetry(logging =>
+{
+    logging.IncludeFormattedMessage = true;
+    logging.IncludeScopes = true;
+    logging.ParseStateValues = true;
+    logging.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName));
+
+    if (!string.IsNullOrWhiteSpace(otlpEndpoint))
+    {
+        logging.AddOtlpExporter(options => options.Endpoint = new Uri(otlpEndpoint));
+    }
+
+    logging.AddConsoleExporter();
+});
+
 builder.Services.AddOpenTelemetry()
-    .ConfigureResource(resource => resource.AddService("CaseCellShop.Api"))
+    .ConfigureResource(resource => resource.AddService(serviceName))
     .WithTracing(tracing => tracing
         .AddSource(TraceSources.Name)
         .AddAspNetCoreInstrumentation()
         .AddHttpClientInstrumentation()
-        .AddConsoleExporter());
+        .AddConsoleExporter()
+        .AddOtlpExporterIfConfigured(otlpEndpoint))
+    .WithMetrics(metrics => metrics
+        .AddMeter(ApplicationMetrics.MeterName)
+        .AddAspNetCoreInstrumentation()
+        .AddHttpClientInstrumentation()
+        .AddRuntimeInstrumentation()
+        .AddConsoleExporter()
+        .AddOtlpExporterIfConfigured(otlpEndpoint));
 
 var app = builder.Build();
 
@@ -145,3 +137,20 @@ static void EnsureSqliteDirectory(IConfiguration configuration)
 }
 
 public partial class Program;
+
+internal static class OpenTelemetryBuilderExtensions
+{
+    public static TracerProviderBuilder AddOtlpExporterIfConfigured(this TracerProviderBuilder builder, string? endpoint)
+    {
+        return string.IsNullOrWhiteSpace(endpoint)
+            ? builder
+            : builder.AddOtlpExporter(options => options.Endpoint = new Uri(endpoint));
+    }
+
+    public static MeterProviderBuilder AddOtlpExporterIfConfigured(this MeterProviderBuilder builder, string? endpoint)
+    {
+        return string.IsNullOrWhiteSpace(endpoint)
+            ? builder
+            : builder.AddOtlpExporter(options => options.Endpoint = new Uri(endpoint));
+    }
+}

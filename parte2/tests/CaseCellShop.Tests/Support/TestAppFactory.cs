@@ -1,9 +1,11 @@
-using CaseCellShop.Api.Data;
-using CaseCellShop.Api.Messaging;
-using CaseCellShop.Api.Services;
+using CaseCellShop.Application.Services;
+using CaseCellShop.Domain.Abstractions;
+using CaseCellShop.Domain.Entities;
+using CaseCellShop.Infrastructure.Cache;
+using CaseCellShop.Infrastructure.Data;
+using CaseCellShop.Infrastructure.Repositories;
+using CaseCellShop.Infrastructure.Time;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -20,9 +22,17 @@ public sealed class TestAppFactory : IAsyncDisposable
     public TestAppFactory(int initialStock = 1)
     {
         var serviceCollection = new ServiceCollection();
-        serviceCollection.AddLogging(builder => builder.AddDebug());
+        serviceCollection.AddLogging();
         serviceCollection.AddDistributedMemoryCache();
         serviceCollection.AddSingleton<IEventPublisher>(Publisher);
+        serviceCollection.AddSingleton<IApplicationMetrics, NoopApplicationMetrics>();
+        serviceCollection.AddSingleton<IClock, SystemClock>();
+        serviceCollection.AddScoped<IProductCatalogCache, RedisProductCatalogCache>();
+        serviceCollection.AddScoped<IProductCatalogRepository, EfProductCatalogRepository>();
+        serviceCollection.AddScoped<EfCheckoutStore>();
+        serviceCollection.AddScoped<ICheckoutStore>(provider => provider.GetRequiredService<EfCheckoutStore>());
+        serviceCollection.AddScoped<IOrderStatusReader>(provider => provider.GetRequiredService<EfCheckoutStore>());
+        serviceCollection.AddScoped<IOrderBillingStore>(provider => provider.GetRequiredService<EfCheckoutStore>());
         serviceCollection.AddScoped<ProductCatalogService>();
         serviceCollection.AddScoped<CheckoutService>();
         serviceCollection.AddDbContext<AppDbContext>(options => options.UseSqlite($"Data Source={_dbPath};Pooling=False"));
@@ -50,7 +60,7 @@ public sealed class TestAppFactory : IAsyncDisposable
     private static void Seed(AppDbContext db, int initialStock)
     {
         var now = DateTimeOffset.UtcNow;
-        db.Products.Add(new()
+        db.Products.Add(new Product
         {
             Sku = "CASE-TEST",
             Name = "Capinha de Teste",
@@ -58,7 +68,7 @@ public sealed class TestAppFactory : IAsyncDisposable
             Price = 10.0m,
             UpdatedAt = now
         });
-        db.Inventory.Add(new()
+        db.Inventory.Add(new InventoryItem
         {
             Sku = "CASE-TEST",
             Available = initialStock,

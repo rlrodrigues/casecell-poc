@@ -1,6 +1,9 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/CaseCellShop.Api/CaseCellShop.Api.csproj" />
+    <Project Path="src/CaseCellShop.Application/CaseCellShop.Application.csproj" />
+    <Project Path="src/CaseCellShop.Domain/CaseCellShop.Domain.csproj" />
+    <Project Path="src/CaseCellShop.Infrastructure/CaseCellShop.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/CaseCellShop.Tests/CaseCellShop.Tests.csproj" />

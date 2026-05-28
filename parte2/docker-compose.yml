@@ -10,8 +10,12 @@ services:
       ConnectionStrings__ShopDb: "Data Source=/app/data/casecellshop.db"
       ConnectionStrings__Redis: "redis:6379"
       Erp__BillingDelayMs: 500
+      Observability__ServiceName: "CaseCellShop.Api"
+      Observability__OtlpEndpoint: "http://otel-collector:4317"
     depends_on:
       redis:
+        condition: service_started
+      otel-collector:
         condition: service_started
     volumes:
       - casecellshop-data:/app/data
@@ -21,5 +25,60 @@ services:
     ports:
       - "6379:6379"
 
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.126.0
+    command: ["--config=/etc/otelcol-contrib/config.yaml"]
+    volumes:
+      - ./observability/otel-collector.yaml:/etc/otelcol-contrib/config.yaml:ro
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+      - "9464:9464"
+
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=2d"
+    volumes:
+      - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "9090:9090"
+    depends_on:
+      otel-collector:
+        condition: service_started
+
+  grafana:
+    image: grafana/grafana:11.2.2
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_DEFAULT_THEME: light
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports:
+      - "3000:3000"
+    depends_on:
+      prometheus:
+        condition: service_started
+
+  k6:
+    image: grafana/k6:0.54.0
+    profiles: ["loadtest"]
+    environment:
+      BASE_URL: http://api:8080
+    volumes:
+      - ./load-tests:/scripts
+    working_dir: /scripts
+    command: ["run", "casecellshop.js"]
+    depends_on:
+      api:
+        condition: service_started
+
 volumes:
   casecellshop-data:
+  prometheus-data:
+  grafana-data:

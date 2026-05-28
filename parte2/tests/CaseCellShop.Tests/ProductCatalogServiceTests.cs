@@ -1,5 +1,5 @@
-using CaseCellShop.Api.Data;
-using CaseCellShop.Api.Services;
+using CaseCellShop.Application.Services;
+using CaseCellShop.Infrastructure.Data;
 using CaseCellShop.Tests.Support;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;

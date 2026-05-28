@@ -1,5 +1,5 @@
 using System.Collections.Concurrent;
-using CaseCellShop.Api.Messaging;
+using CaseCellShop.Domain.Abstractions;
 
 namespace CaseCellShop.Tests.Support;
 

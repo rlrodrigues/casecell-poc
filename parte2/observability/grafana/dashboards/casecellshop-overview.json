@@ -1,0 +1,67 @@
+{
+  "uid": "casecellshop-overview",
+  "title": "CaseCellShop Overview",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "5s",
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Cache hits",
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+      "targets": [
+        { "expr": "sum(casecellshop_casecellshop_cache_hits_total)", "refId": "A" }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Cache misses",
+      "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
+      "targets": [
+        { "expr": "sum(casecellshop_casecellshop_cache_misses_total)", "refId": "A" }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Checkouts aceitos",
+      "gridPos": { "x": 12, "y": 0, "w": 6, "h": 4 },
+      "targets": [
+        { "expr": "sum(casecellshop_casecellshop_checkout_accepted_total)", "refId": "A" }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Faturamentos concluídos",
+      "gridPos": { "x": 18, "y": 0, "w": 6, "h": 4 },
+      "targets": [
+        { "expr": "sum(casecellshop_casecellshop_billing_succeeded_total)", "refId": "A" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Latência HTTP p95",
+      "gridPos": { "x": 0, "y": 4, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(casecellshop_http_server_request_duration_seconds_bucket[1m])) by (le, http_route))",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Requisições HTTP por rota",
+      "gridPos": { "x": 12, "y": 4, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "sum(rate(casecellshop_http_server_request_duration_seconds_count[1m])) by (http_route)",
+          "refId": "A"
+        }
+      ]
+    }
+  ]
+}
